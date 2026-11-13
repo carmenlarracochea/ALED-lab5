@@ -14,13 +14,30 @@ import es.upm.dit.aled.lab5.gui.Position2D;
  */
 public class AreaQueue extends Area {
 
-		private LinkedList waitQueue;
+		private Queue<Patient> waitQueue;
 	
 	public AreaQueue(String name, int time, int capacity, Position2D position) {
 		super(name, time, capacity, position);
-		
+		this.waitQueue = new LinkedList<>();
 	}
 	
-	
-	// TODO
+	@Override
+	public synchronized void enter(Patient p) {
+		this.waiting++;
+		this.waitQueue.add(p);
+		while(numPatients >= capacity || waitQueue.peek() != p) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}	
+			
+			this.numPatients++;
+			this.waitQueue.remove();
+			if(waiting >0) {
+				this.waiting--;
+			} 
+
+	}
 }
